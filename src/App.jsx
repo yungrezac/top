@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Zap, Heart, Crown, Trophy, Medal, Flame, Star, Snowflake, Cpu, Skull, Gem, Sparkles, Infinity, Loader2 } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Skull, Gem, Sparkles, Infinity, Loader2 } from 'lucide-react';
+
+// ==============================================
+// 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Like Leaderboard)
+// ==============================================
 
 /**
- * Компонент карточки участника
+ * Карточка одного лайкера. Содержит логику всех стилей (Tiers).
  */
 const LikerCard = ({ data, rank }) => {
   const { name, avatar, count } = data;
 
-  // --- КОНФИГУРАЦИЯ СТИЛЕЙ ПО КОЛИЧЕСТВУ ЛАЙКОВ ---
+  // Полная конфигурация стилей от 1 до 100,000+
   const getLeaderConfig = () => {
-    // 100,000+ (INFINITY)
+    // 100,000+ (INFINITY) - Бесконечность
     if (count >= 100000) return {
       container: 'border-2 border-white bg-gradient-to-r from-indigo-950/80 via-purple-900/80 to-indigo-950/80 shadow-[0_0_50px_rgba(255,255,255,0.4)]', 
       text: 'text-white font-black drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]',
@@ -20,7 +24,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-prism'
     };
 
-    // 50,000+ (PLASMA)
+    // 50,000+ (PLASMA) - Плазма/Огонь
     if (count >= 50000) return {
       container: 'border-2 border-orange-500 bg-gradient-to-r from-red-900/60 via-orange-900/60 to-red-900/60 shadow-[0_0_50px_rgba(249,115,22,0.6)] animate-pulse-fast',
       text: 'text-orange-50 font-black drop-shadow-[0_2px_4px_rgba(0,0,0,1)]',
@@ -31,7 +35,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-fire'
     };
 
-    // 20,000+ (CRYSTAL)
+    // 20,000+ (CRYSTAL) - Кристалл
     if (count >= 20000) return {
       container: 'border-2 border-cyan-300 bg-slate-900/80 shadow-[0_0_40px_rgba(34,211,238,0.5)]',
       text: 'text-cyan-50 font-black',
@@ -42,7 +46,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-ice'
     };
 
-    // 10,000+ (EMERALD)
+    // 10,000+ (EMERALD) - Изумруд/Яд
     if (count >= 10000) return {
       container: 'border-2 border-emerald-400 bg-slate-900/80 shadow-[0_0_40px_rgba(52,211,153,0.4)]',
       text: 'text-emerald-50 font-bold',
@@ -53,7 +57,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'toxic-ooze'
     };
 
-    // 5,000+ (GOLD)
+    // 5,000+ (GOLD) - Золото
     if (count >= 5000) return {
       container: 'border-2 border-yellow-400 bg-gradient-to-r from-yellow-900/40 via-amber-900/50 to-yellow-900/40 shadow-[0_0_30px_rgba(250,204,21,0.5)]',
       text: 'text-yellow-50 font-black',
@@ -64,7 +68,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-gold'
     };
     
-    // 3,000+ (PURPLE)
+    // 3,000+ (PURPLE) - Космос
     if (count >= 3000) return {
       container: 'border border-fuchsia-500 bg-slate-900/80 shadow-[0_0_20px_rgba(217,70,239,0.4)]',
       text: 'text-fuchsia-100 font-bold',
@@ -75,7 +79,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
 
-    // 1,000+ (BLUE)
+    // 1,000+ (BLUE) - Кибер
     if (count >= 1000) return {
       container: 'border border-blue-500 bg-slate-900/80 shadow-[0_0_15px_rgba(59,130,246,0.4)]', 
       text: 'text-blue-100 font-bold',
@@ -86,7 +90,51 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
     
-    // < 1000 (DEFAULT)
+    // 500+ (PINK) - Поп-звезда
+    if (count >= 500) return {
+      container: 'border border-pink-500 bg-slate-900/70 shadow-[0_0_10px_rgba(236,72,153,0.4)]', 
+      text: 'text-pink-100 font-bold',
+      heart: 'text-pink-500 fill-pink-600',
+      counter: 'text-white',
+      badge: 'bg-pink-950 text-pink-300 border-pink-500',
+      icon: <Zap size={14} className="text-pink-400" />,
+      effect: null
+    };
+
+    // 200+ (CYAN) - Лед
+    if (count >= 200) return {
+      container: 'border border-cyan-600 bg-slate-900/70 shadow-lg',
+      text: 'text-cyan-50 font-semibold',
+      heart: 'text-cyan-400 fill-cyan-500',
+      counter: 'text-white',
+      badge: 'bg-cyan-950 text-cyan-300 border-cyan-600',
+      icon: <Snowflake size={14} className="text-cyan-400" />,
+      effect: null
+    };
+
+    // 100+ (RED) - Огонек
+    if (count >= 100) return {
+      container: 'border border-red-600 bg-slate-900/70 shadow-lg',
+      text: 'text-red-50 font-semibold',
+      heart: 'text-red-500 fill-red-600',
+      counter: 'text-white',
+      badge: 'bg-red-950 text-red-300 border-red-600',
+      icon: <Flame size={14} className="text-red-400" />,
+      effect: null
+    };
+
+    // 50+ (BRONZE)
+    if (count >= 50) return {
+      container: 'border border-orange-700 bg-slate-900/70 shadow-lg',
+      text: 'text-orange-100 font-semibold',
+      heart: 'text-orange-600 fill-orange-700',
+      counter: 'text-white',
+      badge: 'bg-slate-800 text-orange-300 border-orange-700',
+      icon: <Medal size={14} className="text-orange-500" />,
+      effect: null
+    };
+
+    // < 50 (DEFAULT)
     return {
       container: 'border border-slate-600 bg-slate-900/70 shadow-lg',
       text: 'text-slate-200 font-semibold',
@@ -98,7 +146,7 @@ const LikerCard = ({ data, rank }) => {
     };
   };
 
-  // --- РЕНДЕР: 1 МЕСТО ---
+  // --- РЕНДЕР: 1 МЕСТО (Король) ---
   if (rank === 1) {
     const styles = getLeaderConfig();
     return (
@@ -118,6 +166,9 @@ const LikerCard = ({ data, rank }) => {
         )}
         {styles.effect === 'particles-fire' && (
           <div className="absolute -bottom-4 left-1/2 w-full h-10 bg-orange-500/20 blur-xl rounded-full animate-pulse"></div>
+        )}
+        {styles.effect === 'toxic-ooze' && (
+          <div className="absolute inset-0 bg-emerald-500/10 blur-xl rounded-full animate-pulse"></div>
         )}
 
         {/* Карточка */}
@@ -150,7 +201,7 @@ const LikerCard = ({ data, rank }) => {
              <span className="text-sm text-slate-400 font-medium">Король лайков</span>
           </div>
 
-          {/* СЧЕТЧИК */}
+          {/* СЧЕТЧИК (СЕРДЦЕ + ЦИФРА СВЕРХУ) */}
           <div className="relative flex items-center justify-center w-24 h-24 z-20 shrink-0">
              <Heart 
                className={`w-full h-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-fast transition-colors duration-500 ${styles.heart}`} 
@@ -175,7 +226,7 @@ const LikerCard = ({ data, rank }) => {
     );
   }
 
-  // --- РЕНДЕР: 2 МЕСТО ---
+  // --- РЕНДЕР: 2 МЕСТО (Серебро) ---
   if (rank === 2) {
     return (
       <div 
@@ -198,7 +249,7 @@ const LikerCard = ({ data, rank }) => {
     );
   }
 
-  // --- РЕНДЕР: 3-15 МЕСТО (Компакт) ---
+  // --- РЕНДЕР: 3-15 МЕСТО (УЛЬТРА-КОМПАКТНЫЕ) ---
   return (
     <div 
       className="relative z-10 mb-1.5 ml-6 w-[240px] h-10 bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 rounded-r-full rounded-l-md flex items-center px-2 transition-all duration-300 animate-slide-in"
@@ -227,13 +278,93 @@ const LikerCard = ({ data, rank }) => {
   );
 };
 
+// Компонент списка лайков (обертка)
+const LikeOverlay = () => {
+  // Logic is handled in parent App component via state sharing, 
+  // but for cleaner separation, App passes data or we use context.
+  // In this single-file version, App renders the list directly.
+  return null; 
+};
+
+// ==============================================
+// 2. КОМПОНЕНТЫ ДЛЯ ПОДАРКОВ (Gift Overlay)
+// ==============================================
+
+const GiftCard = ({ data, onRemove }) => {
+  const { user, gift, combo, id } = data;
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    setIsExiting(false);
+    const timer = setTimeout(() => {
+      setIsExiting(true);
+      setTimeout(() => onRemove(id), 500);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [combo, id, onRemove]);
+
+  const intensity = combo >= 50 ? 'border-amber-400 bg-gradient-to-r from-red-900/80 to-slate-900' : 
+                    combo >= 10 ? 'border-yellow-400 bg-slate-900/90' : 
+                    'border-purple-500 bg-slate-900/80';
+
+  return (
+    <div className={`relative w-[400px] h-24 flex items-center mb-6 transition-all duration-500 ease-out z-50 ${isExiting ? 'opacity-0 translate-x-[-100%]' : 'opacity-100 translate-x-0 animate-slide-in'}`} style={{ zIndex: combo }}>
+      <div className={`flex items-center backdrop-blur-md border rounded-full pl-2 pr-6 py-2 relative overflow-visible w-full transition-all duration-300 ${intensity} shadow-2xl`}>
+        {/* Аватар */}
+        <div className="relative shrink-0">
+          <img src={user.avatar} alt="Avatar" className={`w-14 h-14 rounded-full border-2 object-cover z-10 relative border-white`} />
+        </div>
+        {/* Текст */}
+        <div className="ml-3 mr-6 flex flex-col justify-center min-w-0 flex-1">
+          <span className="font-bold text-base leading-tight truncate text-white">{user.name}</span>
+          <span className="text-xs text-slate-300 font-medium truncate">sent <span className="font-bold text-white">{gift.name}</span></span>
+        </div>
+        {/* Подарок + Комбо */}
+        <div className={`relative -mr-8 -my-8 z-30 group shrink-0 transition-transform duration-200 ${combo >= 10 ? 'scale-125' : 'scale-110'}`}>
+           <img key={combo} src={gift.image} className="w-24 h-24 object-contain drop-shadow-2xl z-10 relative animate-elastic-pop origin-bottom" alt="Gift" />
+           <div className="absolute bottom-2 right-0 flex flex-col items-center justify-center pointer-events-none">
+              <div key={combo} className={`text-4xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-yellow-400 drop-shadow-lg animate-combo-bounce`}>
+                x{combo}
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GiftOverlay = ({ username, gifts, removeGift }) => {
+  return (
+    <div className="absolute left-6 top-16 flex flex-col items-start">
+      {gifts.length === 0 && (
+        <div className="flex flex-col items-center bg-slate-900/40 backdrop-blur-sm p-4 rounded-xl border border-purple-500/30">
+           <span className="text-purple-200 font-semibold text-xs tracking-widest uppercase animate-pulse">Waiting for gifts...</span>
+        </div>
+      )}
+      {gifts.map(g => <GiftCard key={g.id} data={g} onRemove={removeGift} />)}
+    </div>
+  );
+};
+
+// ==============================================
+// 3. ГЛАВНОЕ ПРИЛОЖЕНИЕ (ROUTING + WS + LOGIC)
+// ==============================================
+
 export default function App() {
+  // State for Likes
   const [users, setUsers] = useState([]);
-  const [connectionStatus, setConnectionStatus] = useState('connecting');
-  const [targetUsername, setTargetUsername] = useState('');
   const usersRef = useRef([]);
 
-  // Обработка лайков
+  // State for Gifts
+  const [gifts, setGifts] = useState([]);
+  const giftsRef = useRef([]);
+
+  // General State
+  const [mode, setMode] = useState('likes'); // 'likes' | 'gift'
+  const [targetUsername, setTargetUsername] = useState('');
+  const [status, setStatus] = useState('connecting');
+
+  // --- HANDLER: LIKES ---
   const handleLike = useCallback((username, avatarUrl, amount) => {
     const currentUsers = [...usersRef.current];
     const existingIndex = currentUsers.findIndex(u => u.name === username);
@@ -245,132 +376,145 @@ export default function App() {
       currentUsers.push({ 
         id: username, 
         name: username, 
-        avatar: avatarUrl || '[https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg](https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg)', // Заглушка
+        avatar: avatarUrl || 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg', 
         count: amount, 
         lastUpdate: Date.now() 
       });
     }
     
-    // Сортировка
+    // Sort & Limit
     currentUsers.sort((a, b) => b.count - a.count);
-    
-    // Лимит памяти (50 пользователей), рендер 15
-    if (currentUsers.length > 50) currentUsers.length = 50;
+    if (currentUsers.length > 50) currentUsers.length = 50; // Keep memory low
     
     usersRef.current = currentUsers;
     setUsers([...currentUsers]);
   }, []);
 
-  // Инициализация WebSocket
-  useEffect(() => {
-    // Получаем имя из URL: [domain.com/username](https://domain.com/username) ИЛИ [domain.com/?u=username](https://domain.com/?u=username)
-    const pathName = window.location.pathname.substring(1); 
-    const queryName = new URLSearchParams(window.location.search).get('u');
-    const userToConnect = pathName || queryName;
+  // --- HANDLER: GIFTS ---
+  const handleGift = useCallback((sender, avatar, giftName, giftImg, combo) => {
+    const currentGifts = [...giftsRef.current];
+    const uniqueKey = `${sender}-${giftName}`;
+    const existingIndex = currentGifts.findIndex(g => g.uniqueKey === uniqueKey);
 
-    if (!userToConnect) { 
-      setConnectionStatus('error'); 
-      return; 
+    if (existingIndex >= 0) {
+      currentGifts[existingIndex].combo = combo;
+      currentGifts[existingIndex].trigger = Date.now();
+    } else {
+      const newGift = {
+        id: Date.now(),
+        uniqueKey,
+        user: { name: sender, avatar },
+        gift: { name: giftName, image: giftImg },
+        combo
+      };
+      currentGifts.push(newGift);
     }
+
+    if (currentGifts.length > 2) currentGifts.shift();
+
+    giftsRef.current = currentGifts;
+    setGifts([...currentGifts]);
+  }, []);
+
+  const removeGift = useCallback((id) => {
+    const filtered = giftsRef.current.filter(g => g.id !== id);
+    giftsRef.current = filtered;
+    setGifts([...filtered]);
+  }, []);
+
+  // --- WEBSOCKET CONNECTION ---
+  useEffect(() => {
+    const path = window.location.pathname;
+    let user = '';
     
-    setTargetUsername(userToConnect);
-    
-    // Определение протокола (ws или wss для HTTPS)
+    if (path.startsWith('/gift/')) {
+      setMode('gift');
+      user = path.split('/gift/')[1];
+    } else {
+      setMode('likes');
+      user = path.substring(1) || new URLSearchParams(window.location.search).get('u');
+    }
+
+    if (!user) { setStatus('error'); return; }
+    setTargetUsername(user);
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // Подключаемся к текущему хосту (Railway сам разрулит порты)
     const ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onopen = () => {
-      setConnectionStatus('connected');
-      // Отправляем на сервер команду подключиться к TikTok
-      ws.send(JSON.stringify({ type: 'connect', username: userToConnect }));
+      setStatus('connected');
+      ws.send(JSON.stringify({ type: 'connect', username: user }));
     };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'like' && data.targetUser === userToConnect) {
-        handleLike(data.nickname, data.profilePictureUrl, data.likeCount);
+      if (data.targetUser === user) {
+        if (data.type === 'like') {
+          // Вычисляем дельту или просто добавляем 1, если TikTok не прислал total
+          const amount = 1; // Упрощенно считаем каждый эвент за лайк/батч
+          handleLike(data.nickname, data.profilePictureUrl, amount);
+        }
+        if (data.type === 'gift') {
+          handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
+        }
       }
     };
 
-    ws.onclose = () => setConnectionStatus('disconnected');
+    ws.onclose = () => setStatus('disconnected');
     
-    // Глобальная функция для тестов через консоль: window.onTikTokLike('User', 'Url', 10)
+    // Debug helpers
     window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count);
+    window.onTikTokGift = (username, avatar, giftName, img, combo) => handleGift(username, avatar, giftName, img, combo);
 
     return () => {
       ws.close();
       window.onTikTokLike = null;
+      window.onTikTokGift = null;
     };
-  }, [handleLike]);
+  }, [handleLike, handleGift]);
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans text-slate-100 overflow-hidden relative">
-      
-      {/* Стили анимаций */}
       <style>{`
-        @keyframes bounce-slow {
-          0%, 100% { transform: translate(-50%, 0); }
-          50% { transform: translate(-50%, -5px); }
-        }
-        @keyframes pulse-fast {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.03); opacity: 0.9; }
-        }
-        @keyframes combo-bounce {
-          0% { transform: scale(1); }
-          30% { transform: scale(1.4); }
-          60% { transform: scale(0.9); }
-          100% { transform: scale(1); }
-        }
-        @keyframes slide-in {
-           from { opacity: 0; transform: translateX(-20px); }
-           to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes float-particle-1 {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-20px) translateX(10px); }
-        }
-        @keyframes float-particle-2 {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-15px) translateX(-5px); }
-        }
+        @keyframes bounce-slow { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
+        @keyframes pulse-fast { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.03); opacity: 0.9; } }
+        @keyframes combo-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.4); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }
+        @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes elastic-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes float-particle-1 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-20px) translateX(10px); } }
+        @keyframes float-particle-2 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-15px) translateX(-5px); } }
       `}</style>
 
-      {/* Ожидание данных */}
-      {users.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {connectionStatus === 'connecting' && (
-             <div className="flex flex-col items-center bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-pulse">
-               <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-               <span className="text-white font-bold text-sm">Connecting to @{targetUsername}...</span>
-             </div>
-          )}
-          {connectionStatus === 'error' && (
-             <div className="flex flex-col items-center bg-red-900/40 backdrop-blur-md p-6 rounded-2xl border border-red-500/30">
-               <span className="text-red-200 font-bold text-sm">No username provided</span>
-               <span className="text-red-300 text-xs mt-1">Add /username to URL</span>
-             </div>
-          )}
-          {connectionStatus === 'connected' && (
-             <div className="flex flex-col items-center bg-slate-900/40 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50">
-                <span className="text-slate-300 font-semibold text-xs tracking-widest uppercase animate-pulse">Waiting for likes...</span>
-             </div>
-          )}
+      {/* --- STATUS INDICATOR (Hidden if connected/data exists) --- */}
+      {status !== 'connected' && (
+        <div className="absolute top-4 left-4 bg-black/50 p-2 rounded text-xs text-white z-50">
+          Status: {status}
         </div>
       )}
 
-      {/* Список лидеров */}
-      <div className="absolute left-6 top-16 flex flex-col items-start scale-75 origin-top-left transition-all duration-500">
-        {users.slice(0, 15).map((user, index) => (
-          <LikerCard 
-            key={user.id} 
-            data={user} 
-            rank={index + 1} 
-          />
-        ))}
-      </div>
+      {/* --- GIFT MODE --- */}
+      {mode === 'gift' && (
+        <GiftOverlay username={targetUsername} gifts={gifts} removeGift={removeGift} />
+      )}
 
+      {/* --- LIKE MODE (DEFAULT) --- */}
+      {mode === 'likes' && (
+        <>
+          {users.length === 0 && status === 'connected' && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex flex-col items-center bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-pulse">
+                <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
+                <span className="text-white font-bold text-sm">Waiting for likes for @{targetUsername}...</span>
+              </div>
+            </div>
+          )}
+          <div className="absolute left-6 top-16 flex flex-col items-start scale-75 origin-top-left transition-all duration-500">
+            {users.slice(0, 15).map((user, index) => (
+              <LikerCard key={user.id} data={user} rank={index + 1} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
