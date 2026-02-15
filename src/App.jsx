@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Gift as GiftIcon } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal } from 'lucide-react';
 
 // ==============================================
 // 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Like Leaderboard)
@@ -209,12 +209,12 @@ const LikerCard = ({ data, rank }) => {
              />
              <div className="relative z-10 flex flex-col items-center justify-center">
                 <span 
-                    key={count} 
-                    className={`text-3xl font-black italic tracking-tighter animate-combo-bounce ${styles.counter}`}
-                    style={{ 
-                        textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
-                        WebkitTextStroke: '1px rgba(0,0,0,0.2)'
-                    }}
+                   key={count} 
+                   className={`text-3xl font-black italic tracking-tighter animate-combo-bounce ${styles.counter}`}
+                   style={{ 
+                       textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+                       WebkitTextStroke: '1px rgba(0,0,0,0.2)'
+                   }}
                 >
                 {count > 9999 ? `${(count/1000).toFixed(1)}k` : count}
                 </span>
@@ -316,11 +316,17 @@ const GiftCard = ({ data, onRemove }) => {
         <div className="relative shrink-0">
           <img src={user.avatar} alt="Avatar" className={`w-14 h-14 rounded-full border-2 object-cover z-10 relative border-white`} />
         </div>
-        {/* Текст */}
-        <div className="ml-3 mr-6 flex flex-col justify-center min-w-0 flex-1">
-          <span className="font-bold text-base leading-tight truncate text-white">{user.name}</span>
-          <span className="text-xs text-slate-300 font-medium truncate">sent <span className="font-bold text-white">{gift.name}</span></span>
+        
+        {/* Текст (УВЕЛИЧЕННЫЙ РАЗМЕР ШРИФТА) */}
+        <div className="ml-4 mr-6 flex flex-col justify-center min-w-0 flex-1">
+          {/* Имя: было text-base, стало text-2xl + font-black */}
+          <span className="font-black text-2xl leading-tight truncate text-white drop-shadow-md">{user.name}</span>
+          {/* Описание: было text-xs, стало text-lg + font-bold */}
+          <span className="text-lg text-slate-200 font-bold truncate">
+            sent <span className="font-black text-white">{gift.name}</span>
+          </span>
         </div>
+
         {/* Подарок + Комбо */}
         <div className={`relative -mr-8 -my-8 z-30 group shrink-0 transition-transform duration-200 ${combo >= 10 ? 'scale-125' : 'scale-110'}`}>
            <img key={combo} src={gift.image} className="w-24 h-24 object-contain drop-shadow-2xl z-10 relative animate-elastic-pop origin-bottom" alt="Gift" />
