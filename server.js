@@ -12,69 +12,79 @@ const app = express();
 const server = createServer(app);
 const port = process.env.PORT || 8080;
 
-// WebSocket сервер
+// Настройка WebSocket сервера
 const wss = new WebSocketServer({ server });
-
-// Хранилище активных подключений к TikTok
 const tiktokConnections = new Map();
 
 wss.on('connection', (ws) => {
-  console.log('New client connected');
+  console.log('Client connected');
 
   ws.on('message', async (message) => {
     try {
       const data = JSON.parse(message);
       
-      // Клиент запрашивает подключение к стримеру
       if (data.type === 'connect' && data.username) {
         const username = data.username;
         console.log(`Request to track: ${username}`);
 
         let tiktokConn = tiktokConnections.get(username);
 
-        // Если подключения нет, создаем новое
         if (!tiktokConn) {
           tiktokConn = new WebcastPushConnection(username);
           
           tiktokConn.connect()
-            .then(state => {
-              console.info(`Connected to roomId ${state.roomId} (${username})`);
-            })
+            .then(state => console.info(`Connected to ${username} (Room: ${state.roomId})`))
             .catch(err => {
-              console.error('Failed to connect', err);
+              console.error(`Failed to connect to ${username}:`, err);
+              // Можно отправить ошибку клиенту, если нужно
             });
 
-          // Слушаем лайки
-          tiktokConn.on('like', (likeData) => {
-            const payload = JSON.stringify({
+          // Обработка Лайков
+          tiktokConn.on('like', (data) => {
+            broadcast({
               type: 'like',
               targetUser: username,
-              nickname: likeData.nickname,
-              profilePictureUrl: likeData.profilePictureUrl,
-              likeCount: likeData.likeCount
-            });
-            
-            // Рассылаем всем клиентам
-            wss.clients.forEach(client => {
-              if (client.readyState === 1) client.send(payload);
+              nickname: data.nickname,
+              profilePictureUrl: data.profilePictureUrl,
+              likeCount: data.likeCount
             });
           });
 
-          // Можно добавить обработку подарков, чата и т.д. здесь же
+          // Обработка Подарков
+          tiktokConn.on('gift', (data) => {
+            // Отправляем только если это не конец стрика (или можно отправлять все)
+            broadcast({
+              type: 'gift',
+              targetUser: username,
+              nickname: data.nickname,
+              profilePictureUrl: data.profilePictureUrl,
+              giftName: data.giftName,
+              giftPictureUrl: data.giftPictureUrl,
+              repeatCount: data.repeatCount,
+              diamondCount: data.diamondCount
+            });
+          });
 
           tiktokConnections.set(username, tiktokConn);
         }
       }
     } catch (e) {
-      console.error('WebSocket Error:', e);
+      console.error('WS Message Error:', e);
     }
   });
 });
 
-// 1. Раздача статики (React build)
+function broadcast(data) {
+  const payload = JSON.stringify(data);
+  wss.clients.forEach(client => {
+    if (client.readyState === 1) client.send(payload);
+  });
+}
+
+// Раздача статических файлов (React App)
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// 2. Catch-all маршрут для поддержки путей типа /username
+// Любой маршрут возвращает index.html (для React Router)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
