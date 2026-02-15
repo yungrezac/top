@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Прозрачный фон для OBS */
+body, html {
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Убираем скроллбары */
+  height: 100%;
+  width: 100%;
+}
