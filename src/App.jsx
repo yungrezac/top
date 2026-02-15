@@ -280,9 +280,6 @@ const LikerCard = ({ data, rank }) => {
 
 // Компонент списка лайков (обертка)
 const LikeOverlay = () => {
-  // Logic is handled in parent App component via state sharing, 
-  // but for cleaner separation, App passes data or we use context.
-  // In this single-file version, App renders the list directly.
   return null; 
 };
 
@@ -308,8 +305,6 @@ const GiftCard = ({ data, onRemove }) => {
                     'border-purple-500 bg-slate-900/80';
 
   return (
-    // ОБНОВЛЕНО: Анимация выезда слева направо (animate-slide-in-left)
-    // ОБНОВЛЕНО: Анимация ухода вниз с прозрачностью (opacity-0 translate-y-10)
     <div className={`relative w-[400px] h-24 flex items-center mb-6 transition-all duration-500 ease-out z-50 ${isExiting ? 'opacity-0 translate-y-10' : 'opacity-100 translate-x-0 animate-slide-in-left'}`} style={{ zIndex: combo }}>
       <div className={`flex items-center backdrop-blur-md border rounded-full pl-2 pr-6 py-2 relative overflow-visible w-full transition-all duration-300 ${intensity} shadow-2xl`}>
         {/* Аватар */}
@@ -319,9 +314,7 @@ const GiftCard = ({ data, onRemove }) => {
         
         {/* Текст (УВЕЛИЧЕННЫЙ РАЗМЕР ШРИФТА) */}
         <div className="ml-4 mr-6 flex flex-col justify-center min-w-0 flex-1">
-          {/* Имя: было text-base, стало text-2xl + font-black */}
           <span className="font-black text-2xl leading-tight truncate text-white drop-shadow-md">{user.name}</span>
-          {/* Описание: было text-xs, стало text-lg + font-bold */}
           <span className="text-lg text-slate-200 font-bold truncate">
             sent <span className="font-black text-white">{gift.name}</span>
           </span>
@@ -330,7 +323,6 @@ const GiftCard = ({ data, onRemove }) => {
         {/* Подарок + Комбо */}
         <div className={`relative -mr-8 -my-8 z-30 group shrink-0 transition-transform duration-200 ${combo >= 10 ? 'scale-125' : 'scale-110'}`}>
            <img key={combo} src={gift.image} className="w-24 h-24 object-contain drop-shadow-2xl z-10 relative animate-elastic-pop origin-bottom" alt="Gift" />
-           {/* ОБНОВЛЕНО: Счетчик комбо сверху */}
            <div className="absolute -top-8 right-0 flex flex-col items-center justify-center pointer-events-none">
               <div key={combo} className={`text-4xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-yellow-400 drop-shadow-lg animate-combo-bounce`}>
                 x{combo}
@@ -345,7 +337,6 @@ const GiftCard = ({ data, onRemove }) => {
 const GiftOverlay = ({ username, gifts, removeGift }) => {
   return (
     <div className="absolute left-6 top-16 flex flex-col items-start">
-      {/* ОБНОВЛЕНО: Убрана надпись ожидания */}
       {gifts.map(g => <GiftCard key={g.id} data={g} onRemove={removeGift} />)}
     </div>
   );
@@ -370,19 +361,31 @@ export default function App() {
   const [status, setStatus] = useState('connecting');
 
   // --- HANDLER: LIKES ---
-  const handleLike = useCallback((username, avatarUrl, amount) => {
+  // ОБНОВЛЕНО: Добавлен аргумент totalLikesFromTikTok для синхронизации
+  const handleLike = useCallback((username, avatarUrl, amount, totalLikesFromTikTok) => {
     const currentUsers = [...usersRef.current];
     const existingIndex = currentUsers.findIndex(u => u.name === username);
     
     if (existingIndex >= 0) {
-      currentUsers[existingIndex].count += amount;
+      // ИСПРАВЛЕНИЕ: Логика подсчета
+      // Если ТикТок прислал общий счетчик (totalLikeCount) и он больше того, что у нас есть,
+      // мы используем его (синхронизация).
+      // Иначе просто добавляем пришедшее количество (amount).
+      const currentCount = currentUsers[existingIndex].count;
+      
+      if (totalLikesFromTikTok && totalLikesFromTikTok > currentCount) {
+        currentUsers[existingIndex].count = totalLikesFromTikTok;
+      } else {
+        currentUsers[existingIndex].count += amount;
+      }
+      
       currentUsers[existingIndex].lastUpdate = Date.now();
     } else {
       currentUsers.push({ 
         id: username, 
         name: username, 
         avatar: avatarUrl || 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg', 
-        count: amount, 
+        count: totalLikesFromTikTok || amount, // Используем тотал для старта, если есть
         lastUpdate: Date.now() 
       });
     }
@@ -455,9 +458,10 @@ export default function App() {
       const data = JSON.parse(event.data);
       if (data.targetUser === user) {
         if (data.type === 'like') {
-          // Вычисляем дельту или просто добавляем 1, если TikTok не прислал total
-          const amount = 1; // Упрощенно считаем каждый эвент за лайк/батч
-          handleLike(data.nickname, data.profilePictureUrl, amount);
+          // ИСПРАВЛЕНИЕ: Берем реальное число лайков из пакета (например, 15 за тап), а не 1
+          const amount = data.likeCount || 1; 
+          // Передаем также totalLikeCount для синхронизации
+          handleLike(data.nickname, data.profilePictureUrl, amount, data.totalLikeCount);
         }
         if (data.type === 'gift') {
           handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
@@ -468,7 +472,7 @@ export default function App() {
     ws.onclose = () => setStatus('disconnected');
     
     // Debug helpers
-    window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count);
+    window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count, 0);
     window.onTikTokGift = (username, avatar, giftName, img, combo) => handleGift(username, avatar, giftName, img, combo);
 
     return () => {
@@ -485,7 +489,6 @@ export default function App() {
         @keyframes pulse-fast { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.03); opacity: 0.9; } }
         @keyframes combo-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.4); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }
         @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        /* ОБНОВЛЕНО: Анимация выезда слева направо для подарков */
         @keyframes slide-in-left { from { opacity: 0; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes elastic-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes float-particle-1 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-20px) translateX(10px); } }
