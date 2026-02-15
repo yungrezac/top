@@ -361,31 +361,21 @@ export default function App() {
   const [status, setStatus] = useState('connecting');
 
   // --- HANDLER: LIKES ---
-  // ОБНОВЛЕНО: Добавлен аргумент totalLikesFromTikTok для синхронизации
-  const handleLike = useCallback((username, avatarUrl, amount, totalLikesFromTikTok) => {
+  // ОБНОВЛЕНО: Убрана синхронизация с totalLikesFromTikTok, так как это общее число лайков стрима.
+  // Теперь просто суммируем приходящие значения.
+  const handleLike = useCallback((username, avatarUrl, amount) => {
     const currentUsers = [...usersRef.current];
     const existingIndex = currentUsers.findIndex(u => u.name === username);
     
     if (existingIndex >= 0) {
-      // ИСПРАВЛЕНИЕ: Логика подсчета
-      // Если ТикТок прислал общий счетчик (totalLikeCount) и он больше того, что у нас есть,
-      // мы используем его (синхронизация).
-      // Иначе просто добавляем пришедшее количество (amount).
-      const currentCount = currentUsers[existingIndex].count;
-      
-      if (totalLikesFromTikTok && totalLikesFromTikTok > currentCount) {
-        currentUsers[existingIndex].count = totalLikesFromTikTok;
-      } else {
-        currentUsers[existingIndex].count += amount;
-      }
-      
+      currentUsers[existingIndex].count += amount;
       currentUsers[existingIndex].lastUpdate = Date.now();
     } else {
       currentUsers.push({ 
         id: username, 
         name: username, 
         avatar: avatarUrl || 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg', 
-        count: totalLikesFromTikTok || amount, // Используем тотал для старта, если есть
+        count: amount, 
         lastUpdate: Date.now() 
       });
     }
@@ -458,10 +448,10 @@ export default function App() {
       const data = JSON.parse(event.data);
       if (data.targetUser === user) {
         if (data.type === 'like') {
-          // ИСПРАВЛЕНИЕ: Берем реальное число лайков из пакета (например, 15 за тап), а не 1
+          // ИСПРАВЛЕНИЕ: Используем только likeCount (лайки в пакете).
+          // totalLikeCount - это лайки ВСЕГО стрима, их нельзя присваивать юзеру.
           const amount = data.likeCount || 1; 
-          // Передаем также totalLikeCount для синхронизации
-          handleLike(data.nickname, data.profilePictureUrl, amount, data.totalLikeCount);
+          handleLike(data.nickname, data.profilePictureUrl, amount);
         }
         if (data.type === 'gift') {
           handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
@@ -472,7 +462,7 @@ export default function App() {
     ws.onclose = () => setStatus('disconnected');
     
     // Debug helpers
-    window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count, 0);
+    window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count);
     window.onTikTokGift = (username, avatar, giftName, img, combo) => handleGift(username, avatar, giftName, img, combo);
 
     return () => {
