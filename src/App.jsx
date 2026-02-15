@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Skull, Gem, Sparkles, Infinity, Loader2 } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Gift as GiftIcon } from 'lucide-react';
 
 // ==============================================
 // 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Like Leaderboard)
@@ -308,7 +308,9 @@ const GiftCard = ({ data, onRemove }) => {
                     'border-purple-500 bg-slate-900/80';
 
   return (
-    <div className={`relative w-[400px] h-24 flex items-center mb-6 transition-all duration-500 ease-out z-50 ${isExiting ? 'opacity-0 translate-x-[-100%]' : 'opacity-100 translate-x-0 animate-slide-in'}`} style={{ zIndex: combo }}>
+    // ОБНОВЛЕНО: Анимация выезда слева направо (animate-slide-in-left)
+    // ОБНОВЛЕНО: Анимация ухода вниз с прозрачностью (opacity-0 translate-y-10)
+    <div className={`relative w-[400px] h-24 flex items-center mb-6 transition-all duration-500 ease-out z-50 ${isExiting ? 'opacity-0 translate-y-10' : 'opacity-100 translate-x-0 animate-slide-in-left'}`} style={{ zIndex: combo }}>
       <div className={`flex items-center backdrop-blur-md border rounded-full pl-2 pr-6 py-2 relative overflow-visible w-full transition-all duration-300 ${intensity} shadow-2xl`}>
         {/* Аватар */}
         <div className="relative shrink-0">
@@ -322,7 +324,8 @@ const GiftCard = ({ data, onRemove }) => {
         {/* Подарок + Комбо */}
         <div className={`relative -mr-8 -my-8 z-30 group shrink-0 transition-transform duration-200 ${combo >= 10 ? 'scale-125' : 'scale-110'}`}>
            <img key={combo} src={gift.image} className="w-24 h-24 object-contain drop-shadow-2xl z-10 relative animate-elastic-pop origin-bottom" alt="Gift" />
-           <div className="absolute bottom-2 right-0 flex flex-col items-center justify-center pointer-events-none">
+           {/* ОБНОВЛЕНО: Счетчик комбо сверху */}
+           <div className="absolute -top-8 right-0 flex flex-col items-center justify-center pointer-events-none">
               <div key={combo} className={`text-4xl font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white to-yellow-400 drop-shadow-lg animate-combo-bounce`}>
                 x{combo}
               </div>
@@ -336,11 +339,7 @@ const GiftCard = ({ data, onRemove }) => {
 const GiftOverlay = ({ username, gifts, removeGift }) => {
   return (
     <div className="absolute left-6 top-16 flex flex-col items-start">
-      {gifts.length === 0 && (
-        <div className="flex flex-col items-center bg-slate-900/40 backdrop-blur-sm p-4 rounded-xl border border-purple-500/30">
-           <span className="text-purple-200 font-semibold text-xs tracking-widest uppercase animate-pulse">Waiting for gifts...</span>
-        </div>
-      )}
+      {/* ОБНОВЛЕНО: Убрана надпись ожидания */}
       {gifts.map(g => <GiftCard key={g.id} data={g} onRemove={removeGift} />)}
     </div>
   );
@@ -480,9 +479,12 @@ export default function App() {
         @keyframes pulse-fast { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.03); opacity: 0.9; } }
         @keyframes combo-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.4); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }
         @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        /* ОБНОВЛЕНО: Анимация выезда слева направо для подарков */
+        @keyframes slide-in-left { from { opacity: 0; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes elastic-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes float-particle-1 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-20px) translateX(10px); } }
         @keyframes float-particle-2 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-15px) translateX(-5px); } }
+        .animate-slide-in-left { animation: slide-in-left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       `}</style>
 
       {/* --- STATUS INDICATOR (Hidden if connected/data exists) --- */}
