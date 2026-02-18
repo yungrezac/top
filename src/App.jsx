@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal, Swords, Timer, Volume2, WifiOff } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal, Swords, Timer, WifiOff } from 'lucide-react';
 
 // ==============================================
 // 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (LikerCard)
@@ -190,41 +190,34 @@ const GiftOverlay = ({ gifts, removeGift }) => {
 // 3. БАТТЛ КОМПОНЕНТЫ (Throne, Versus)
 // ==============================================
 
-const ChampionThrone = ({ champion, currentLeader }) => {
-  if (!champion && !currentLeader) return null;
-
-  const isNewKing = currentLeader && (!champion || currentLeader.count > champion.count);
-  const displayUser = isNewKing ? currentLeader : champion;
-  const title = isNewKing ? "НОВЫЙ ЛИДЕР" : "КОРОЛЬ ЧАСА";
-  const subTitle = isNewKing ? "Удерживает трон!" : `Цель: побить ${champion?.count}`;
+const ChampionThrone = ({ champion }) => {
+  // Показываем трон только если есть победитель ПРОШЛОГО раунда
+  if (!champion) {
+    // Можно вернуть null, или пустой плейсхолдер
+    return null;
+  }
 
   return (
-    // Убрал абсолютное позиционирование, теперь это часть флекс-колонки
     <div className="relative z-40 animate-slide-in-top w-full max-w-[450px]">
-      <div className={`
-        relative flex items-center gap-4 px-6 py-3 rounded-2xl border-2 
-        ${isNewKing ? 'bg-gradient-to-r from-yellow-900/90 to-amber-600/90 border-yellow-400' : 'bg-gradient-to-r from-slate-900/90 to-slate-800/90 border-slate-500'}
-        shadow-[0_10px_40px_rgba(0,0,0,0.5)]
-      `}>
+      <div className="relative flex items-center gap-4 px-6 py-3 rounded-2xl border-2 bg-gradient-to-r from-yellow-900/90 to-amber-600/90 border-yellow-400 shadow-[0_10px_40px_rgba(251,191,36,0.2)]">
         <div className="relative">
-          <Crown size={32} className={`absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce ${isNewKing ? 'text-yellow-300' : 'text-slate-400'}`} />
+          <Crown size={32} className="absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce text-yellow-300" />
           <img 
-            src={displayUser.avatar} 
-            className={`w-16 h-16 rounded-full border-4 object-cover ${isNewKing ? 'border-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.6)]' : 'border-slate-400 grayscale-[0.3]'}`} 
+            src={champion.avatar} 
+            className="w-16 h-16 rounded-full border-4 object-cover border-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.6)]" 
             alt="King" 
           />
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className={`text-[10px] font-black tracking-widest uppercase mb-0.5 ${isNewKing ? 'text-yellow-200' : 'text-slate-400'}`}>
-            {title}
+          <span className="text-[10px] font-black tracking-widest uppercase mb-0.5 text-yellow-200">
+            КОРОЛЬ ПРОШЛОГО ЧАСА
           </span>
           <span className="text-xl font-black text-white drop-shadow-md truncate w-full leading-none mb-1">
-            {displayUser.name}
+            {champion.name}
           </span>
           <div className="flex items-center gap-2 bg-black/30 px-2 py-0.5 rounded text-sm">
-            <Heart size={12} className={isNewKing ? "text-red-500 fill-red-500" : "text-slate-500"} />
-            <span className="font-mono font-bold text-white">{displayUser.count}</span>
-            <span className="text-[10px] opacity-70 ml-1 border-l pl-2 border-white/20">{subTitle}</span>
+            <Heart size={12} className="text-red-500 fill-red-500" />
+            <span className="font-mono font-bold text-white">{champion.count}</span>
           </div>
         </div>
       </div>
@@ -242,43 +235,53 @@ const VersusBar = ({ user1, user2 }) => {
   percent1 = Math.max(10, Math.min(90, percent1));
 
   return (
-    // Убрал фиксированные отступы и ширину, теперь адаптивно в колонке
-    <div className="w-full max-w-[450px] relative z-30 animate-slide-in my-2">
+    // НОВАЯ КРАСИВАЯ КАРТОЧКА ФОНА
+    <div className="w-full max-w-[450px] relative z-30 animate-slide-in my-3 p-4 rounded-2xl bg-gradient-to-b from-slate-900/80 to-slate-950/90 border border-slate-700/60 shadow-2xl backdrop-blur-md">
+      
+      {/* VS Icon */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-        <div className="bg-red-600 text-white font-black text-lg italic px-2 py-0.5 rounded skew-x-[-12deg] shadow-lg border-2 border-white flex items-center gap-1">
+        <div className="bg-red-600 text-white font-black text-lg italic px-2 py-0.5 rounded skew-x-[-12deg] shadow-[0_0_15px_rgba(220,38,38,0.5)] border-2 border-white flex items-center gap-1">
           <Swords size={16} /> VS
         </div>
       </div>
 
-      <div className="flex justify-between items-end mb-2 px-1">
+      <div className="flex justify-between items-end mb-3 px-1">
+        {/* Игрок 1 */}
         <div className="flex items-center gap-2 max-w-[45%]">
-          <img src={user1.avatar} className="w-10 h-10 rounded-full border-2 border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]" />
+          <div className="relative">
+             <div className="absolute inset-0 rounded-full bg-blue-500 blur-sm opacity-50"></div>
+             <img src={user1.avatar} className="relative w-11 h-11 rounded-full border-2 border-blue-400 shadow-lg object-cover" />
+          </div>
           <div className="flex flex-col min-w-0">
             <span className="text-blue-100 font-bold text-xs truncate">{user1.name}</span>
-            <span className="text-xl font-black text-white leading-none">{user1.count}</span>
+            <span className="text-xl font-black text-white leading-none drop-shadow-lg">{user1.count}</span>
           </div>
         </div>
 
+        {/* Игрок 2 */}
         {user2 && (
           <div className="flex items-center gap-2 flex-row-reverse text-right max-w-[45%]">
-            <img src={user2.avatar} className="w-10 h-10 rounded-full border-2 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.6)]" />
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-rose-500 blur-sm opacity-50"></div>
+              <img src={user2.avatar} className="relative w-11 h-11 rounded-full border-2 border-rose-500 shadow-lg object-cover" />
+            </div>
             <div className="flex flex-col min-w-0">
               <span className="text-rose-100 font-bold text-xs truncate">{user2.name}</span>
-              <span className="text-xl font-black text-white leading-none">{user2.count}</span>
+              <span className="text-xl font-black text-white leading-none drop-shadow-lg">{user2.count}</span>
             </div>
           </div>
         )}
       </div>
 
-      <div className="h-5 w-full bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 flex shadow-inner">
+      {/* Прогресс бар */}
+      <div className="h-4 w-full bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 flex shadow-inner">
         <div 
-          className="h-full bg-gradient-to-r from-blue-800 to-blue-500 transition-all duration-700 ease-out relative"
+          className="h-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 transition-all duration-700 ease-out relative"
           style={{ width: `${percent1}%` }}
         >
-          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 shadow-[0_0_10px_white]"></div>
-          <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-400 blur-md rounded-full opacity-70"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/70 shadow-[0_0_15px_white]"></div>
         </div>
-        <div className="flex-1 h-full bg-gradient-to-l from-rose-900 to-rose-600 relative"></div>
+        <div className="flex-1 h-full bg-gradient-to-l from-rose-800 via-rose-600 to-rose-500 relative"></div>
       </div>
     </div>
   );
@@ -297,25 +300,21 @@ export default function App() {
   const [champion, setChampion] = useState(null);
   const [timeLeft, setTimeLeft] = useState('');
   const [status, setStatus] = useState('connecting');
-  const [isTTSActive, setIsTTSActive] = useState(false);
   const [targetUsername, setTargetUsername] = useState('');
   
-  // Режим работы: 'likes' (основной) или 'gift' (отдельный виджет)
+  // Режим работы
   const [mode, setMode] = useState('likes'); 
 
   // --- BATTLE LOGIC ---
   const finishRound = useCallback(() => {
     const currentLeader = usersRef.current[0];
+    
+    // 1. Фиксируем победителя (Короля) только в момент окончания раунда
     if (currentLeader) {
       setChampion(currentLeader);
-      const text = `Битва окончена! Победитель ${currentLeader.name}, набравший ${currentLeader.count} лайков!`;
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ru-RU';
-        window.speechSynthesis.speak(utterance);
-      }
     }
+    
+    // 2. Сбрасываем текущие данные для нового раунда
     usersRef.current = [];
     setUsers([]);
     console.log("Round finished. Resetting data.");
@@ -327,6 +326,8 @@ export default function App() {
       const minutes = 59 - now.getMinutes();
       const seconds = 59 - now.getSeconds();
       setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      
+      // Конец часа (00:00)
       if (minutes === 59 && seconds === 59) {
         finishRound();
       }
@@ -415,7 +416,6 @@ export default function App() {
     const path = window.location.pathname;
     let user = '';
 
-    // ОПРЕДЕЛЕНИЕ РЕЖИМА И ЮЗЕРА ПО URL
     if (path.startsWith('/gift/')) {
       setMode('gift');
       user = path.split('/gift/')[1];
@@ -436,16 +436,12 @@ export default function App() {
     };
   }, [connectWebSocket]);
 
-  const enableAudio = () => {
-    setIsTTSActive(true);
-    const u = new SpeechSynthesisUtterance("");
-    window.speechSynthesis.speak(u);
-  };
-
   // Данные для рендера
   const leader = users[0];
   const second = users[1];
-  const others = users.slice(2, 12); 
+  
+  // Ограничиваем список: только топ 5 (1 и 2 в баре, 3, 4, 5 в списке)
+  const others = users.slice(2, 5); 
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans text-slate-100 overflow-hidden relative">
@@ -459,13 +455,7 @@ export default function App() {
         @keyframes elastic-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
       `}</style>
 
-      {/* --- ОБЩИЕ ЭЛЕМЕНТЫ (Аудио, Статус) --- */}
-      {mode === 'likes' && !isTTSActive && (
-        <button onClick={enableAudio} className="absolute top-4 right-4 z-[60] bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg animate-pulse" title="Включить звук">
-          <Volume2 size={20} />
-        </button>
-      )}
-
+      {/* --- СТАТУС --- */}
       {status === 'disconnected' && (
         <div className="absolute top-4 right-16 bg-red-900/80 p-2 rounded-full text-xs text-white z-50 flex items-center gap-2 border border-red-500">
           <WifiOff size={14} /> <span>Reconnecting...</span>
@@ -473,17 +463,17 @@ export default function App() {
       )}
 
       {/* ========================================================= */}
-      {/* РЕЖИМ 1: GIFTS ONLY (Если url /gift/...) */}
+      {/* РЕЖИМ 1: GIFTS ONLY */}
       {/* ========================================================= */}
       {mode === 'gift' && (
         <GiftOverlay gifts={gifts} removeGift={removeGift} />
       )}
 
       {/* ========================================================= */}
-      {/* РЕЖИМ 2: LIKES BATTLE ONLY (Основной url) */}
+      {/* РЕЖИМ 2: LIKES BATTLE ONLY */}
       {/* ========================================================= */}
       {mode === 'likes' && (
-        <div className="absolute top-6 left-6 flex flex-col items-start gap-4">
+        <div className="absolute top-6 left-6 flex flex-col items-start gap-3">
           
           {/* 1. ТАЙМЕР */}
           <div className="flex items-center gap-2 bg-black/40 backdrop-blur border border-white/10 px-3 py-1 rounded-full text-sm font-mono text-white/80">
@@ -491,10 +481,10 @@ export default function App() {
             <span>ROUND: <span className="text-white font-bold">{timeLeft}</span></span>
           </div>
 
-          {/* 2. ТРОН ЧЕМПИОНА (ТЕПЕРЬ ТУТ, НАД СПИСКОМ) */}
-          <ChampionThrone champion={champion} currentLeader={leader} />
+          {/* 2. ТРОН ЧЕМПИОНА (ВИСИТ ВЕСЬ РАУНД) */}
+          <ChampionThrone champion={champion} />
 
-          {/* 3. БАР ПРОТИВОСТОЯНИЯ (1 VS 2) */}
+          {/* 3. БАР ПРОТИВОСТОЯНИЯ (1 VS 2) С ФОНОМ */}
           {users.length > 0 ? (
             <VersusBar user1={leader} user2={second} />
           ) : (
@@ -504,8 +494,8 @@ export default function App() {
              </div>
           )}
 
-          {/* 4. СПИСОК ОСТАЛЬНЫХ */}
-          <div className="flex flex-col items-start w-full pl-0 mt-2">
+          {/* 4. СПИСОК ОСТАЛЬНЫХ (ТОЛЬКО ТОП 5 TOTAL) */}
+          <div className="flex flex-col items-start w-full pl-0">
             {others.map((u, i) => (
               <LikerCard key={u.id} data={u} rank={i + 3} />
             ))}
