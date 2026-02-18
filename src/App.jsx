@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal, WifiOff } from 'lucide-react';
 
 // ==============================================
 // 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Like Leaderboard)
@@ -359,10 +359,12 @@ export default function App() {
   const [mode, setMode] = useState('likes'); // 'likes' | 'gift'
   const [targetUsername, setTargetUsername] = useState('');
   const [status, setStatus] = useState('connecting');
+  
+  // Ref for reconnect logic
+  const reconnectTimeoutRef = useRef(null);
+  const wsRef = useRef(null);
 
   // --- HANDLER: LIKES ---
-  // ОБНОВЛЕНО: Убрана синхронизация с totalLikesFromTikTok, так как это общее число лайков стрима.
-  // Теперь просто суммируем приходящие значения.
   const handleLike = useCallback((username, avatarUrl, amount) => {
     const currentUsers = [...usersRef.current];
     const existingIndex = currentUsers.findIndex(u => u.name === username);
@@ -419,8 +421,67 @@ export default function App() {
     giftsRef.current = filtered;
     setGifts([...filtered]);
   }, []);
+  
+  // --- RESET HANDLER ---
+  const handleReset = useCallback(() => {
+    usersRef.current = [];
+    setUsers([]);
+    giftsRef.current = [];
+    setGifts([]);
+    console.log('Stream ended - data reset');
+  }, []);
 
-  // --- WEBSOCKET CONNECTION ---
+  // --- WEBSOCKET CONNECTION & RECONNECT ---
+  const connectWebSocket = useCallback((user) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      setStatus('connected');
+      ws.send(JSON.stringify({ type: 'connect', username: user }));
+      // Clear any pending reconnect timeouts
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.targetUser === user) {
+          if (data.type === 'like') {
+            const amount = data.likeCount || 1; 
+            handleLike(data.nickname, data.profilePictureUrl, amount);
+          }
+          if (data.type === 'gift') {
+            handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
+          }
+          if (data.type === 'streamEnd') {
+            handleReset();
+          }
+        }
+      } catch (e) {
+        console.error("Parse error", e);
+      }
+    };
+
+    ws.onclose = () => {
+      setStatus('disconnected');
+      console.log('WS Disconnected. Retrying in 3s...');
+      // IMPORTANT: Data is NOT cleared on disconnect, only on explicit 'streamEnd' message.
+      reconnectTimeoutRef.current = setTimeout(() => connectWebSocket(user), 3000);
+    };
+
+    ws.onerror = (err) => {
+      console.error('WS Error', err);
+      ws.close();
+    };
+  }, [handleLike, handleGift, handleReset]);
+
   useEffect(() => {
     const path = window.location.pathname;
     let user = '';
@@ -436,41 +497,14 @@ export default function App() {
     if (!user) { setStatus('error'); return; }
     setTargetUsername(user);
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+    connectWebSocket(user);
 
-    ws.onopen = () => {
-      setStatus('connected');
-      ws.send(JSON.stringify({ type: 'connect', username: user }));
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.targetUser === user) {
-        if (data.type === 'like') {
-          // ИСПРАВЛЕНИЕ: Используем только likeCount (лайки в пакете).
-          // totalLikeCount - это лайки ВСЕГО стрима, их нельзя присваивать юзеру.
-          const amount = data.likeCount || 1; 
-          handleLike(data.nickname, data.profilePictureUrl, amount);
-        }
-        if (data.type === 'gift') {
-          handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
-        }
-      }
-    };
-
-    ws.onclose = () => setStatus('disconnected');
-    
-    // Debug helpers
-    window.onTikTokLike = (username, avatar, count) => handleLike(username, avatar, count);
-    window.onTikTokGift = (username, avatar, giftName, img, combo) => handleGift(username, avatar, giftName, img, combo);
-
+    // Cleanup
     return () => {
-      ws.close();
-      window.onTikTokLike = null;
-      window.onTikTokGift = null;
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
     };
-  }, [handleLike, handleGift]);
+  }, [connectWebSocket]);
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans text-slate-100 overflow-hidden relative">
@@ -486,10 +520,17 @@ export default function App() {
         .animate-slide-in-left { animation: slide-in-left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       `}</style>
 
-      {/* --- STATUS INDICATOR (Hidden if connected/data exists) --- */}
-      {status !== 'connected' && (
-        <div className="absolute top-4 left-4 bg-black/50 p-2 rounded text-xs text-white z-50">
-          Status: {status}
+      {/* --- STATUS INDICATOR --- */}
+      {status === 'disconnected' && (
+        <div className="absolute top-4 left-4 bg-red-900/80 p-2 rounded-full text-xs text-white z-50 flex items-center gap-2 animate-pulse border border-red-500">
+          <WifiOff size={14} />
+          <span>Reconnecting...</span>
+        </div>
+      )}
+      
+      {status === 'error' && (
+        <div className="absolute top-4 left-4 bg-red-600 p-2 rounded text-xs text-white z-50">
+          User not found in URL
         </div>
       )}
 
@@ -501,8 +542,8 @@ export default function App() {
       {/* --- LIKE MODE (DEFAULT) --- */}
       {mode === 'likes' && (
         <>
-          {users.length === 0 && status === 'connected' && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {users.length === 0 && (
+            <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 ${status === 'connected' ? 'opacity-100' : 'opacity-0'}`}>
               <div className="flex flex-col items-center bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-pulse">
                 <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
                 <span className="text-white font-bold text-sm">Waiting for likes for @{targetUsername}...</span>
