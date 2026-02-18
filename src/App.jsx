@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal, WifiOff } from 'lucide-react';
+import { Heart, Crown, Trophy, Flame, Star, Snowflake, Cpu, Gem, Sparkles, Infinity, Loader2, Zap, Medal, Swords, Timer, Volume2, WifiOff } from 'lucide-react';
 
 // ==============================================
-// 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Like Leaderboard)
+// 1. КОМПОНЕНТЫ ДЛЯ ЛАЙКОВ (Rich Styles)
 // ==============================================
 
 /**
- * Карточка одного лайкера. Содержит логику всех стилей (Tiers).
+ * Карточка одного лайкера с поддержкой всех Tiers
  */
 const LikerCard = ({ data, rank }) => {
   const { name, avatar, count } = data;
 
   // Полная конфигурация стилей от 1 до 100,000+
   const getLeaderConfig = () => {
-    // 100,000+ (INFINITY) - Бесконечность
+    // 100,000+ (INFINITY)
     if (count >= 100000) return {
       container: 'border-2 border-white bg-gradient-to-r from-indigo-950/80 via-purple-900/80 to-indigo-950/80 shadow-[0_0_50px_rgba(255,255,255,0.4)]', 
       text: 'text-white font-black drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]',
@@ -24,7 +24,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-prism'
     };
 
-    // 50,000+ (PLASMA) - Плазма/Огонь
+    // 50,000+ (PLASMA)
     if (count >= 50000) return {
       container: 'border-2 border-orange-500 bg-gradient-to-r from-red-900/60 via-orange-900/60 to-red-900/60 shadow-[0_0_50px_rgba(249,115,22,0.6)] animate-pulse-fast',
       text: 'text-orange-50 font-black drop-shadow-[0_2px_4px_rgba(0,0,0,1)]',
@@ -35,7 +35,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-fire'
     };
 
-    // 20,000+ (CRYSTAL) - Кристалл
+    // 20,000+ (CRYSTAL)
     if (count >= 20000) return {
       container: 'border-2 border-cyan-300 bg-slate-900/80 shadow-[0_0_40px_rgba(34,211,238,0.5)]',
       text: 'text-cyan-50 font-black',
@@ -46,7 +46,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-ice'
     };
 
-    // 10,000+ (EMERALD) - Изумруд/Яд
+    // 10,000+ (EMERALD)
     if (count >= 10000) return {
       container: 'border-2 border-emerald-400 bg-slate-900/80 shadow-[0_0_40px_rgba(52,211,153,0.4)]',
       text: 'text-emerald-50 font-bold',
@@ -57,7 +57,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'toxic-ooze'
     };
 
-    // 5,000+ (GOLD) - Золото
+    // 5,000+ (GOLD)
     if (count >= 5000) return {
       container: 'border-2 border-yellow-400 bg-gradient-to-r from-yellow-900/40 via-amber-900/50 to-yellow-900/40 shadow-[0_0_30px_rgba(250,204,21,0.5)]',
       text: 'text-yellow-50 font-black',
@@ -68,7 +68,7 @@ const LikerCard = ({ data, rank }) => {
       effect: 'particles-gold'
     };
     
-    // 3,000+ (PURPLE) - Космос
+    // 3,000+ (PURPLE)
     if (count >= 3000) return {
       container: 'border border-fuchsia-500 bg-slate-900/80 shadow-[0_0_20px_rgba(217,70,239,0.4)]',
       text: 'text-fuchsia-100 font-bold',
@@ -79,7 +79,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
 
-    // 1,000+ (BLUE) - Кибер
+    // 1,000+ (BLUE)
     if (count >= 1000) return {
       container: 'border border-blue-500 bg-slate-900/80 shadow-[0_0_15px_rgba(59,130,246,0.4)]', 
       text: 'text-blue-100 font-bold',
@@ -90,7 +90,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
     
-    // 500+ (PINK) - Поп-звезда
+    // 500+ (PINK)
     if (count >= 500) return {
       container: 'border border-pink-500 bg-slate-900/70 shadow-[0_0_10px_rgba(236,72,153,0.4)]', 
       text: 'text-pink-100 font-bold',
@@ -101,7 +101,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
 
-    // 200+ (CYAN) - Лед
+    // 200+ (CYAN)
     if (count >= 200) return {
       container: 'border border-cyan-600 bg-slate-900/70 shadow-lg',
       text: 'text-cyan-50 font-semibold',
@@ -112,7 +112,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
 
-    // 100+ (RED) - Огонек
+    // 100+ (RED)
     if (count >= 100) return {
       container: 'border border-red-600 bg-slate-900/70 shadow-lg',
       text: 'text-red-50 font-semibold',
@@ -134,7 +134,7 @@ const LikerCard = ({ data, rank }) => {
       effect: null
     };
 
-    // < 50 (DEFAULT)
+    // DEFAULT
     return {
       container: 'border border-slate-600 bg-slate-900/70 shadow-lg',
       text: 'text-slate-200 font-semibold',
@@ -146,117 +146,18 @@ const LikerCard = ({ data, rank }) => {
     };
   };
 
-  // --- РЕНДЕР: 1 МЕСТО (Король) ---
-  if (rank === 1) {
-    const styles = getLeaderConfig();
-    return (
-      <div className="relative z-30 mb-6 transition-all duration-500 animate-slide-in ml-2">
-        {/* ФОНОВЫЕ ЭФФЕКТЫ */}
-        {styles.effect === 'particles-gold' && (
-          <>
-             <div className="absolute top-0 left-10 w-2 h-2 bg-yellow-300 rounded-full animate-float-particle-1 opacity-80"></div>
-             <div className="absolute bottom-2 right-20 w-1.5 h-1.5 bg-amber-200 rounded-full animate-float-particle-2 opacity-60"></div>
-          </>
-        )}
-        {styles.effect === 'particles-prism' && (
-          <div className="absolute inset-0 overflow-visible pointer-events-none">
-             <div className="absolute top-0 right-10 w-4 h-4 bg-white rounded-full animate-pulse blur-[3px] opacity-80"></div>
-             <div className="absolute bottom-0 left-20 w-3 h-3 bg-fuchsia-400 rounded-full animate-float-particle-1 blur-[2px] opacity-60"></div>
-          </div>
-        )}
-        {styles.effect === 'particles-fire' && (
-          <div className="absolute -bottom-4 left-1/2 w-full h-10 bg-orange-500/20 blur-xl rounded-full animate-pulse"></div>
-        )}
-        {styles.effect === 'toxic-ooze' && (
-          <div className="absolute inset-0 bg-emerald-500/10 blur-xl rounded-full animate-pulse"></div>
-        )}
+  const styles = getLeaderConfig();
 
-        {/* Карточка */}
-        <div 
-          className={`
-            relative w-[440px] h-32 flex items-center rounded-full pl-4 pr-6 py-2 overflow-visible
-            transition-all duration-500 origin-left backdrop-blur-sm
-            ${styles.container}
-          `}
-        >
-          {/* Аватар */}
-          <div className="relative shrink-0 mr-5">
-             <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 animate-bounce-slow">
-               <Crown size={36} className={`drop-shadow-lg ${count >= 50000 ? 'text-white fill-white' : count >= 5000 ? 'text-amber-300 fill-amber-500' : 'text-yellow-400 fill-yellow-400'}`} />
-             </div>
-             <div className="p-1 rounded-full">
-               <img src={avatar} className="w-24 h-24 rounded-full border-4 border-slate-900 object-cover relative z-10 shadow-2xl bg-slate-800" alt="avatar" />
-             </div>
-             
-             {/* Бейдж TOP */}
-             <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 text-[11px] font-black px-3 py-1 rounded-full shadow-lg border z-20 whitespace-nowrap flex items-center gap-1 ${styles.badge}`}>
-               {styles.icon}
-               TOP 1
-             </div>
-          </div>
+  // Примечание: Rank 1 и Rank 2 теперь отображаются в VersusBar,
+  // поэтому этот компонент в основном используется для списка (3+), но мы оставим логику универсальной.
 
-          {/* Инфо */}
-          <div className="flex-1 min-w-0 flex flex-col justify-center relative z-20">
-             <span className={`text-2xl leading-tight mb-1 truncate transition-colors duration-300 ${styles.text}`}>{name}</span>
-             <span className="text-sm text-slate-400 font-medium">Король лайков</span>
-          </div>
-
-          {/* СЧЕТЧИК (СЕРДЦЕ + ЦИФРА СВЕРХУ) */}
-          <div className="relative flex items-center justify-center w-24 h-24 z-20 shrink-0">
-             <Heart 
-               className={`w-full h-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-fast transition-colors duration-500 ${styles.heart}`} 
-               strokeWidth={1.5}
-             />
-             <div className="relative z-10 flex flex-col items-center justify-center">
-                <span 
-                   key={count} 
-                   className={`text-3xl font-black italic tracking-tighter animate-combo-bounce ${styles.counter}`}
-                   style={{ 
-                       textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
-                       WebkitTextStroke: '1px rgba(0,0,0,0.2)'
-                   }}
-                >
-                {count > 9999 ? `${(count/1000).toFixed(1)}k` : count}
-                </span>
-                <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest drop-shadow-md">Likes</span>
-             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- РЕНДЕР: 2 МЕСТО (Серебро) ---
-  if (rank === 2) {
-    return (
-      <div 
-        className="relative z-20 mb-3 ml-4 w-[360px] h-16 bg-slate-900/80 backdrop-blur-sm border-2 border-slate-400/50 rounded-full flex items-center px-2 shadow-lg transition-all duration-300 animate-slide-in"
-      >
-        <div className="relative shrink-0 mr-3">
-           <img src={avatar} className="w-12 h-12 rounded-full border-2 border-slate-400 object-cover" alt="avatar" />
-           <div className="absolute -bottom-1 -right-1 bg-slate-300 text-slate-900 text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white shadow-sm">
-             2
-           </div>
-        </div>
-        <div className="flex-1 min-w-0">
-           <span className="text-slate-200 font-bold text-sm block truncate">{name}</span>
-        </div>
-        <div className="pr-4 flex items-center gap-1.5">
-           <Heart size={16} className="text-slate-400 fill-slate-400 animate-pulse" />
-           <span key={count} className="text-xl font-bold text-slate-300 animate-combo-bounce">{count}</span>
-        </div>
-      </div>
-    );
-  }
-
-  // --- РЕНДЕР: 3-15 МЕСТО (УЛЬТРА-КОМПАКТНЫЕ) ---
   return (
     <div 
-      className="relative z-10 mb-1.5 ml-6 w-[240px] h-10 bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 rounded-r-full rounded-l-md flex items-center px-2 transition-all duration-300 animate-slide-in"
+      className={`relative z-10 mb-1.5 ml-6 w-[280px] h-11 backdrop-blur-sm rounded-r-full rounded-l-md flex items-center px-2 transition-all duration-300 animate-slide-in ${styles.container}`}
     >
       {/* Rank */}
-      <div className="relative shrink-0 w-6 flex justify-center">
-         <span className={`font-black text-xs italic ${rank === 3 ? 'text-amber-500 drop-shadow' : 'text-slate-600'}`}>#{rank}</span>
+      <div className="relative shrink-0 w-8 flex justify-center">
+         <span className={`font-black text-xs italic ${rank === 3 ? 'text-amber-500 drop-shadow' : 'text-slate-400'}`}>#{rank}</span>
       </div>
       
       {/* Avatar */}
@@ -266,21 +167,18 @@ const LikerCard = ({ data, rank }) => {
       
       {/* Name */}
       <div className="flex-1 min-w-0 mr-2">
-         <span className={`font-bold text-[11px] block truncate ${rank === 3 ? 'text-slate-200' : 'text-slate-400'}`}>{name}</span>
+         <span className={`font-bold text-[11px] block truncate ${styles.text}`}>{name}</span>
       </div>
       
-      {/* Likes Capsule (УВЕЛИЧЕННАЯ) */}
-      <div className="flex items-center gap-1.5 bg-slate-950/60 px-3 py-1 rounded-full border border-slate-800 shadow-inner min-w-[70px] justify-center">
-         <Heart size={14} className="text-rose-500 fill-rose-500" />
-         <span key={count} className="text-xs font-black text-slate-200 animate-combo-bounce">{count > 9999 ? `${(count/1000).toFixed(0)}k` : count}</span>
+      {/* Likes Capsule */}
+      <div className="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/10 shadow-inner min-w-[70px] justify-center">
+         <div className="animate-pulse">{styles.icon}</div>
+         <span key={count} className={`text-xs font-black animate-combo-bounce ${styles.counter}`}>
+           {count > 9999 ? `${(count/1000).toFixed(1)}k` : count}
+         </span>
       </div>
     </div>
   );
-};
-
-// Компонент списка лайков (обертка)
-const LikeOverlay = () => {
-  return null; 
 };
 
 // ==============================================
@@ -312,7 +210,7 @@ const GiftCard = ({ data, onRemove }) => {
           <img src={user.avatar} alt="Avatar" className={`w-14 h-14 rounded-full border-2 object-cover z-10 relative border-white`} />
         </div>
         
-        {/* Текст (УВЕЛИЧЕННЫЙ РАЗМЕР ШРИФТА) */}
+        {/* Текст */}
         <div className="ml-4 mr-6 flex flex-col justify-center min-w-0 flex-1">
           <span className="font-black text-2xl leading-tight truncate text-white drop-shadow-md">{user.name}</span>
           <span className="text-lg text-slate-200 font-bold truncate">
@@ -334,41 +232,161 @@ const GiftCard = ({ data, onRemove }) => {
   );
 };
 
-const GiftOverlay = ({ username, gifts, removeGift }) => {
+const GiftOverlay = ({ gifts, removeGift }) => {
   return (
-    <div className="absolute left-6 top-16 flex flex-col items-start">
+    <div className="absolute left-6 top-[500px] flex flex-col items-start pointer-events-none">
       {gifts.map(g => <GiftCard key={g.id} data={g} onRemove={removeGift} />)}
     </div>
   );
 };
 
 // ==============================================
-// 3. ГЛАВНОЕ ПРИЛОЖЕНИЕ (ROUTING + WS + LOGIC)
+// 3. БАТТЛ КОМПОНЕНТЫ (Throne, Versus)
+// ==============================================
+
+const ChampionThrone = ({ champion, currentLeader }) => {
+  if (!champion && !currentLeader) return null;
+
+  const isNewKing = currentLeader && (!champion || currentLeader.count > champion.count);
+  const displayUser = isNewKing ? currentLeader : champion;
+  const title = isNewKing ? "НОВЫЙ ЛИДЕР" : "КОРОЛЬ ПРОШЛОГО ЧАСА";
+  const subTitle = isNewKing ? "Удерживает трон!" : `Цель: побить ${champion?.count}`;
+
+  return (
+    <div className="absolute top-0 left-0 right-0 flex justify-center z-40 pt-4 pointer-events-none">
+      <div className={`
+        relative flex items-center gap-4 px-8 py-3 rounded-b-3xl border-b-4 border-x-2 
+        ${isNewKing ? 'bg-gradient-to-b from-yellow-900/90 to-amber-600/90 border-yellow-400' : 'bg-gradient-to-b from-slate-900/90 to-slate-800/90 border-slate-500'}
+        shadow-[0_10px_40px_rgba(0,0,0,0.5)] transform transition-all duration-700 animate-slide-in-top
+      `}>
+        <div className="relative">
+          <Crown size={32} className={`absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce ${isNewKing ? 'text-yellow-300' : 'text-slate-400'}`} />
+          <img 
+            src={displayUser.avatar} 
+            className={`w-16 h-16 rounded-full border-4 object-cover ${isNewKing ? 'border-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.6)]' : 'border-slate-400 grayscale-[0.3]'}`} 
+            alt="King" 
+          />
+        </div>
+        <div className="flex flex-col items-start">
+          <span className={`text-[10px] font-black tracking-widest uppercase mb-0.5 ${isNewKing ? 'text-yellow-200' : 'text-slate-400'}`}>
+            {title}
+          </span>
+          <span className="text-2xl font-black text-white drop-shadow-md max-w-[200px] truncate leading-none mb-1">
+            {displayUser.name}
+          </span>
+          <div className="flex items-center gap-2 bg-black/30 px-2 py-0.5 rounded text-sm">
+            <Heart size={12} className={isNewKing ? "text-red-500 fill-red-500" : "text-slate-500"} />
+            <span className="font-mono font-bold text-white">{displayUser.count}</span>
+            <span className="text-[10px] opacity-70 ml-1 border-l pl-2 border-white/20">{subTitle}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VersusBar = ({ user1, user2 }) => {
+  if (!user1) return null;
+
+  const score1 = user1.count;
+  const score2 = user2 ? user2.count : 0;
+  const total = score1 + score2;
+  let percent1 = total === 0 ? 50 : (score1 / total) * 100;
+  percent1 = Math.max(10, Math.min(90, percent1));
+
+  return (
+    <div className="mt-28 mb-4 w-[500px] relative z-30 mx-6 animate-slide-in">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+        <div className="bg-red-600 text-white font-black text-xl italic px-3 py-1 rounded skew-x-[-12deg] shadow-lg border-2 border-white flex items-center gap-1">
+          <Swords size={20} /> VS
+        </div>
+      </div>
+
+      <div className="flex justify-between items-end mb-2 px-1">
+        <div className="flex items-center gap-2">
+          <img src={user1.avatar} className="w-12 h-12 rounded-full border-2 border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]" />
+          <div className="flex flex-col">
+            <span className="text-blue-100 font-bold text-sm max-w-[120px] truncate">{user1.name}</span>
+            <span className="text-2xl font-black text-white leading-none">{user1.count}</span>
+          </div>
+        </div>
+
+        {user2 && (
+          <div className="flex items-center gap-2 flex-row-reverse text-right">
+            <img src={user2.avatar} className="w-12 h-12 rounded-full border-2 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.6)]" />
+            <div className="flex flex-col">
+              <span className="text-rose-100 font-bold text-sm max-w-[120px] truncate">{user2.name}</span>
+              <span className="text-2xl font-black text-white leading-none">{user2.count}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="h-6 w-full bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 flex shadow-inner">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-800 to-blue-500 transition-all duration-700 ease-out relative"
+          style={{ width: `${percent1}%` }}
+        >
+          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 shadow-[0_0_10px_white]"></div>
+          <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-400 blur-md rounded-full opacity-70"></div>
+        </div>
+        <div className="flex-1 h-full bg-gradient-to-l from-rose-900 to-rose-600 relative"></div>
+      </div>
+    </div>
+  );
+};
+
+// ==============================================
+// 4. ГЛАВНОЕ ПРИЛОЖЕНИЕ (Logic Glue)
 // ==============================================
 
 export default function App() {
-  // State for Likes
   const [users, setUsers] = useState([]);
-  const usersRef = useRef([]);
-
-  // State for Gifts
+  const usersRef = useRef([]); 
   const [gifts, setGifts] = useState([]);
   const giftsRef = useRef([]);
 
-  // General State
-  const [mode, setMode] = useState('likes'); // 'likes' | 'gift'
-  const [targetUsername, setTargetUsername] = useState('');
+  const [champion, setChampion] = useState(null);
+  const [timeLeft, setTimeLeft] = useState('');
   const [status, setStatus] = useState('connecting');
-  
-  // Ref for reconnect logic
-  const reconnectTimeoutRef = useRef(null);
-  const wsRef = useRef(null);
+  const [isTTSActive, setIsTTSActive] = useState(false);
+  const [targetUsername, setTargetUsername] = useState('');
 
-  // --- HANDLER: LIKES ---
+  // --- BATTLE LOGIC ---
+  const finishRound = useCallback(() => {
+    const currentLeader = usersRef.current[0];
+    if (currentLeader) {
+      setChampion(currentLeader);
+      const text = `Битва окончена! Победитель ${currentLeader.name}, набравший ${currentLeader.count} лайков!`;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ru-RU';
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+    usersRef.current = [];
+    setUsers([]);
+    console.log("Round finished. Resetting data.");
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const minutes = 59 - now.getMinutes();
+      const seconds = 59 - now.getSeconds();
+      setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      if (minutes === 59 && seconds === 59) {
+        finishRound();
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [finishRound]);
+
+  // --- DATA HANDLERS ---
   const handleLike = useCallback((username, avatarUrl, amount) => {
     const currentUsers = [...usersRef.current];
     const existingIndex = currentUsers.findIndex(u => u.name === username);
-    
     if (existingIndex >= 0) {
       currentUsers[existingIndex].count += amount;
       currentUsers[existingIndex].lastUpdate = Date.now();
@@ -381,16 +399,12 @@ export default function App() {
         lastUpdate: Date.now() 
       });
     }
-    
-    // Sort & Limit
     currentUsers.sort((a, b) => b.count - a.count);
-    if (currentUsers.length > 50) currentUsers.length = 50; // Keep memory low
-    
+    if (currentUsers.length > 50) currentUsers.length = 50;
     usersRef.current = currentUsers;
     setUsers([...currentUsers]);
   }, []);
 
-  // --- HANDLER: GIFTS ---
   const handleGift = useCallback((sender, avatar, giftName, giftImg, combo) => {
     const currentGifts = [...giftsRef.current];
     const uniqueKey = `${sender}-${giftName}`;
@@ -400,18 +414,10 @@ export default function App() {
       currentGifts[existingIndex].combo = combo;
       currentGifts[existingIndex].trigger = Date.now();
     } else {
-      const newGift = {
-        id: Date.now(),
-        uniqueKey,
-        user: { name: sender, avatar },
-        gift: { name: giftName, image: giftImg },
-        combo
-      };
+      const newGift = { id: Date.now(), uniqueKey, user: { name: sender, avatar }, gift: { name: giftName, image: giftImg }, combo };
       currentGifts.push(newGift);
     }
-
-    if (currentGifts.length > 2) currentGifts.shift();
-
+    if (currentGifts.length > 3) currentGifts.shift();
     giftsRef.current = currentGifts;
     setGifts([...currentGifts]);
   }, []);
@@ -421,20 +427,13 @@ export default function App() {
     giftsRef.current = filtered;
     setGifts([...filtered]);
   }, []);
-  
-  // --- RESET HANDLER ---
-  const handleReset = useCallback(() => {
-    usersRef.current = [];
-    setUsers([]);
-    giftsRef.current = [];
-    setGifts([]);
-    console.log('Stream ended - data reset');
-  }, []);
 
-  // --- WEBSOCKET CONNECTION & RECONNECT ---
+  // --- WEBSOCKET ---
+  const reconnectTimeoutRef = useRef(null);
+  const wsRef = useRef(null);
+
   const connectWebSocket = useCallback((user) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
-
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${protocol}//${window.location.host}`);
     wsRef.current = ws;
@@ -442,69 +441,48 @@ export default function App() {
     ws.onopen = () => {
       setStatus('connected');
       ws.send(JSON.stringify({ type: 'connect', username: user }));
-      // Clear any pending reconnect timeouts
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
+      if (reconnectTimeoutRef.current) { clearTimeout(reconnectTimeoutRef.current); reconnectTimeoutRef.current = null; }
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.targetUser === user) {
-          if (data.type === 'like') {
-            const amount = data.likeCount || 1; 
-            handleLike(data.nickname, data.profilePictureUrl, amount);
-          }
-          if (data.type === 'gift') {
-            handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
-          }
-          if (data.type === 'streamEnd') {
-            handleReset();
-          }
+          if (data.type === 'like') handleLike(data.nickname, data.profilePictureUrl, data.likeCount || 1);
+          if (data.type === 'gift') handleGift(data.nickname, data.profilePictureUrl, data.giftName, data.giftPictureUrl, data.repeatCount);
         }
-      } catch (e) {
-        console.error("Parse error", e);
-      }
+      } catch (e) { console.error(e); }
     };
 
     ws.onclose = () => {
       setStatus('disconnected');
-      console.log('WS Disconnected. Retrying in 3s...');
-      // IMPORTANT: Data is NOT cleared on disconnect, only on explicit 'streamEnd' message.
       reconnectTimeoutRef.current = setTimeout(() => connectWebSocket(user), 3000);
     };
-
-    ws.onerror = (err) => {
-      console.error('WS Error', err);
-      ws.close();
-    };
-  }, [handleLike, handleGift, handleReset]);
+  }, [handleLike, handleGift]);
 
   useEffect(() => {
-    const path = window.location.pathname;
-    let user = '';
-    
-    if (path.startsWith('/gift/')) {
-      setMode('gift');
-      user = path.split('/gift/')[1];
+    const user = window.location.pathname.substring(1) || new URLSearchParams(window.location.search).get('u');
+    if (user) {
+      setTargetUsername(user);
+      connectWebSocket(user);
     } else {
-      setMode('likes');
-      user = path.substring(1) || new URLSearchParams(window.location.search).get('u');
+      setStatus('error');
     }
-
-    if (!user) { setStatus('error'); return; }
-    setTargetUsername(user);
-
-    connectWebSocket(user);
-
-    // Cleanup
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
     };
   }, [connectWebSocket]);
+
+  const enableAudio = () => {
+    setIsTTSActive(true);
+    const u = new SpeechSynthesisUtterance("");
+    window.speechSynthesis.speak(u);
+  };
+
+  const leader = users[0];
+  const second = users[1];
+  const others = users.slice(2, 12); 
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans text-slate-100 overflow-hidden relative">
@@ -514,49 +492,56 @@ export default function App() {
         @keyframes combo-bounce { 0% { transform: scale(1); } 30% { transform: scale(1.4); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }
         @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slide-in-left { from { opacity: 0; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slide-in-top { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes elastic-pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes float-particle-1 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-20px) translateX(10px); } }
         @keyframes float-particle-2 { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-15px) translateX(-5px); } }
         .animate-slide-in-left { animation: slide-in-left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .animate-slide-in-top { animation: slide-in-top 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       `}</style>
 
-      {/* --- STATUS INDICATOR --- */}
+      {/* КНОПКИ УПРАВЛЕНИЯ */}
+      {!isTTSActive && (
+        <button onClick={enableAudio} className="absolute top-4 right-4 z-[60] bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg animate-pulse" title="Включить звук">
+          <Volume2 size={20} />
+        </button>
+      )}
+
+      {/* СТАТУС */}
       {status === 'disconnected' && (
-        <div className="absolute top-4 left-4 bg-red-900/80 p-2 rounded-full text-xs text-white z-50 flex items-center gap-2 animate-pulse border border-red-500">
-          <WifiOff size={14} />
-          <span>Reconnecting...</span>
-        </div>
-      )}
-      
-      {status === 'error' && (
-        <div className="absolute top-4 left-4 bg-red-600 p-2 rounded text-xs text-white z-50">
-          User not found in URL
+        <div className="absolute top-4 left-4 bg-red-900/80 p-2 rounded-full text-xs text-white z-50 flex items-center gap-2 border border-red-500">
+          <WifiOff size={14} /> <span>Reconnecting...</span>
         </div>
       )}
 
-      {/* --- GIFT MODE --- */}
-      {mode === 'gift' && (
-        <GiftOverlay username={targetUsername} gifts={gifts} removeGift={removeGift} />
-      )}
+      {/* ТАЙМЕР */}
+      <div className="absolute top-28 left-6 z-20 flex items-center gap-2 bg-black/40 backdrop-blur border border-white/10 px-3 py-1 rounded-full text-sm font-mono text-white/80">
+        <Timer size={14} className="text-amber-400" />
+        <span>ROUND: <span className="text-white font-bold">{timeLeft}</span></span>
+      </div>
 
-      {/* --- LIKE MODE (DEFAULT) --- */}
-      {mode === 'likes' && (
-        <>
-          {users.length === 0 && (
-            <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 ${status === 'connected' ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="flex flex-col items-center bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-pulse">
-                <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-                <span className="text-white font-bold text-sm">Waiting for likes for @{targetUsername}...</span>
-              </div>
-            </div>
-          )}
-          <div className="absolute left-6 top-16 flex flex-col items-start scale-75 origin-top-left transition-all duration-500">
-            {users.slice(0, 15).map((user, index) => (
-              <LikerCard key={user.id} data={user} rank={index + 1} />
-            ))}
+      {/* UI БИТВЫ */}
+      <ChampionThrone champion={champion} currentLeader={leader} />
+
+      <div className="flex flex-col items-start w-full">
+        {users.length > 0 ? (
+          <VersusBar user1={leader} user2={second} />
+        ) : (
+          <div className="mt-32 ml-10 flex items-center gap-3 text-slate-400 animate-pulse">
+            <Loader2 className="animate-spin" />
+            <span>Ждем первых лайков для @{targetUsername}...</span>
           </div>
-        </>
-      )}
+        )}
+
+        <div className="flex flex-col items-start w-full pl-0">
+          {others.map((u, i) => (
+            <LikerCard key={u.id} data={u} rank={i + 3} />
+          ))}
+        </div>
+      </div>
+
+      {/* ПОДАРКИ (Поверх всего) */}
+      <GiftOverlay gifts={gifts} removeGift={removeGift} />
     </div>
   );
 }
