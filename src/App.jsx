@@ -234,58 +234,99 @@ const VersusBar = ({ user1, user2 }) => {
   percent1 = Math.max(10, Math.min(90, percent1));
 
   return (
-    <div className="w-full max-w-[450px] relative z-30 animate-slide-in my-3 p-4 rounded-2xl bg-gradient-to-b from-slate-900/80 to-slate-950/90 border border-slate-700/60 shadow-2xl backdrop-blur-md">
+    <div className="w-full max-w-[450px] relative z-30 animate-slide-in my-3 p-4 rounded-3xl bg-gradient-to-b from-slate-900/90 to-black/90 border border-slate-700/60 shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
       
-      {/* VS Icon */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-        <div className="bg-red-600 text-white font-black text-lg italic px-2 py-0.5 rounded skew-x-[-12deg] shadow-[0_0_15px_rgba(220,38,38,0.5)] border-2 border-white flex items-center gap-1">
-          <Swords size={16} /> VS
+      {/* VS Icon - Absolute Center */}
+      <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 z-20">
+        <div className="bg-gradient-to-br from-red-600 to-red-800 text-white font-black text-2xl italic px-3 py-1 rounded-lg -skew-x-12 shadow-[0_0_20px_rgba(220,38,38,0.6)] border-2 border-white/20 flex items-center gap-1">
+          <span className="skew-x-12">VS</span>
         </div>
       </div>
 
-      <div className="flex justify-between items-end mb-3 px-1">
-        {/* Игрок 1 */}
-        <div className="flex items-center gap-2 max-w-[45%]">
-          <div className="relative">
-             <div className="absolute inset-0 rounded-full bg-blue-500 blur-sm opacity-50"></div>
+      {/* Players Container */}
+      <div className="flex justify-between items-start mb-6 px-2 relative">
+        
+        {/* Player 1 (Blue) */}
+        <div className="flex flex-col items-center w-[45%] group">
+          {/* Name */}
+          <span className="text-blue-200 font-bold text-sm mb-2 text-center truncate w-full drop-shadow-md">
+            {user1.name}
+          </span>
+          
+          {/* Avatar with Halo */}
+          <div className="relative mb-2 transition-transform duration-300 group-hover:scale-105">
+             <div className="absolute inset-0 rounded-full bg-blue-500 blur-md opacity-60 animate-pulse"></div>
              {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
-             <div className="relative w-11 h-11 rounded-full border-2 border-blue-400 shadow-lg overflow-hidden">
+             <div className="relative w-16 h-16 rounded-full border-[3px] border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.5)] overflow-hidden bg-slate-800">
                 <img src={user1.avatar} className="w-full h-full object-cover" alt={user1.name} />
              </div>
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-blue-100 font-bold text-xs truncate">{user1.name}</span>
-            <span className="text-xl font-black text-white leading-none drop-shadow-lg">{user1.count}</span>
+
+          {/* Count */}
+          <div className="flex flex-col items-center">
+             <span className="text-3xl font-black text-white leading-none drop-shadow-[0_2px_10px_rgba(59,130,246,0.5)]">
+               {user1.count}
+             </span>
+             <span className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Likes</span>
           </div>
         </div>
 
-        {/* Игрок 2 */}
-        {user2 && (
-          <div className="flex items-center gap-2 flex-row-reverse text-right max-w-[45%]">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-rose-500 blur-sm opacity-50"></div>
+        {/* Player 2 (Red) */}
+        {user2 ? (
+          <div className="flex flex-col items-center w-[45%] group">
+            {/* Name */}
+            <span className="text-rose-200 font-bold text-sm mb-2 text-center truncate w-full drop-shadow-md">
+              {user2.name}
+            </span>
+            
+            {/* Avatar with Halo */}
+            <div className="relative mb-2 transition-transform duration-300 group-hover:scale-105">
+              <div className="absolute inset-0 rounded-full bg-rose-500 blur-md opacity-60 animate-pulse"></div>
               {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
-              <div className="relative w-11 h-11 rounded-full border-2 border-rose-500 shadow-lg overflow-hidden">
+              <div className="relative w-16 h-16 rounded-full border-[3px] border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)] overflow-hidden bg-slate-800">
                  <img src={user2.avatar} className="w-full h-full object-cover" alt={user2.name} />
               </div>
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-rose-100 font-bold text-xs truncate">{user2.name}</span>
-              <span className="text-xl font-black text-white leading-none drop-shadow-lg">{user2.count}</span>
+
+            {/* Count */}
+            <div className="flex flex-col items-center">
+               <span className="text-3xl font-black text-white leading-none drop-shadow-[0_2px_10px_rgba(244,63,94,0.5)]">
+                 {user2.count}
+               </span>
+               <span className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">Likes</span>
             </div>
+          </div>
+        ) : (
+          /* Placeholder for empty Player 2 */
+          <div className="flex flex-col items-center w-[45%] opacity-50">
+             <div className="h-4 w-20 bg-slate-700 rounded mb-2"></div>
+             <div className="w-16 h-16 rounded-full border-2 border-slate-700 bg-slate-800 mb-2 flex items-center justify-center">
+                <Loader2 className="animate-spin text-slate-500" />
+             </div>
+             <div className="h-6 w-10 bg-slate-700 rounded"></div>
           </div>
         )}
       </div>
 
-      {/* Прогресс бар */}
-      <div className="h-4 w-full bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 flex shadow-inner">
+      {/* Progress bar */}
+      <div className="relative h-6 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-600/50 flex shadow-inner group">
         <div 
-          className="h-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 transition-all duration-700 ease-out relative"
+          className="h-full bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 transition-all duration-700 ease-out relative"
           style={{ width: `${percent1}%` }}
         >
-          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/70 shadow-[0_0_15px_white]"></div>
+           <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-white/80 shadow-[0_0_10px_white] z-10"></div>
+           {/* Particles/Shine effect */}
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
         </div>
-        <div className="flex-1 h-full bg-gradient-to-l from-rose-800 via-rose-600 to-rose-500 relative"></div>
+        <div className="flex-1 h-full bg-gradient-to-l from-rose-900 via-rose-600 to-rose-400 relative">
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        </div>
+        
+        {/* Percentage Text Overlay */}
+        <div className="absolute inset-0 flex justify-between items-center px-3 text-[10px] font-black text-white/90 drop-shadow-md pointer-events-none">
+           <span>{Math.round(percent1)}%</span>
+           <span>{Math.round(100 - percent1)}%</span>
+        </div>
       </div>
     </div>
   );
