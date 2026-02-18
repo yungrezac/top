@@ -116,8 +116,9 @@ const LikerCard = ({ data, rank }) => {
       <div className="relative shrink-0 w-8 flex justify-center">
          <span className={`font-black text-xs italic ${rank === 3 ? 'text-amber-500 drop-shadow' : 'text-slate-400'}`}>#{rank}</span>
       </div>
-      <div className="relative shrink-0 mr-2">
-         <img src={avatar} className={`w-8 h-8 rounded-full border object-cover ${rank === 3 ? 'border-amber-500/50' : 'border-slate-600'}`} alt="avatar" />
+      {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
+      <div className={`relative shrink-0 mr-2 w-8 h-8 rounded-full overflow-hidden border ${rank === 3 ? 'border-amber-500/50' : 'border-slate-600'}`}>
+         <img src={avatar} className="w-full h-full object-cover" alt="avatar" />
       </div>
       <div className="flex-1 min-w-0 mr-2">
          <span className={`font-bold text-[11px] block truncate ${styles.text}`}>{name}</span>
@@ -157,7 +158,10 @@ const GiftCard = ({ data, onRemove }) => {
     <div className={`relative w-[400px] h-24 flex items-center mb-6 transition-all duration-500 ease-out z-50 ${isExiting ? 'opacity-0 translate-y-10' : 'opacity-100 translate-x-0 animate-slide-in-left'}`} style={{ zIndex: combo }}>
       <div className={`flex items-center backdrop-blur-md border rounded-full pl-2 pr-6 py-2 relative overflow-visible w-full transition-all duration-300 ${intensity} shadow-2xl`}>
         <div className="relative shrink-0">
-          <img src={user.avatar} alt="Avatar" className={`w-14 h-14 rounded-full border-2 object-cover z-10 relative border-white`} />
+          {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
+          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white z-10 relative">
+             <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+          </div>
         </div>
         <div className="ml-4 mr-6 flex flex-col justify-center min-w-0 flex-1">
           <span className="font-black text-2xl leading-tight truncate text-white drop-shadow-md">{user.name}</span>
@@ -191,22 +195,17 @@ const GiftOverlay = ({ gifts, removeGift }) => {
 // ==============================================
 
 const ChampionThrone = ({ champion }) => {
-  // Показываем трон только если есть победитель ПРОШЛОГО раунда
-  if (!champion) {
-    // Можно вернуть null, или пустой плейсхолдер
-    return null;
-  }
+  if (!champion) return null;
 
   return (
     <div className="relative z-40 animate-slide-in-top w-full max-w-[450px]">
       <div className="relative flex items-center gap-4 px-6 py-3 rounded-2xl border-2 bg-gradient-to-r from-yellow-900/90 to-amber-600/90 border-yellow-400 shadow-[0_10px_40px_rgba(251,191,36,0.2)]">
         <div className="relative">
           <Crown size={32} className="absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce text-yellow-300" />
-          <img 
-            src={champion.avatar} 
-            className="w-16 h-16 rounded-full border-4 object-cover border-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.6)]" 
-            alt="King" 
-          />
+          {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
+          <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.6)]">
+             <img src={champion.avatar} className="w-full h-full object-cover" alt="King" />
+          </div>
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
           <span className="text-[10px] font-black tracking-widest uppercase mb-0.5 text-yellow-200">
@@ -235,7 +234,6 @@ const VersusBar = ({ user1, user2 }) => {
   percent1 = Math.max(10, Math.min(90, percent1));
 
   return (
-    // НОВАЯ КРАСИВАЯ КАРТОЧКА ФОНА
     <div className="w-full max-w-[450px] relative z-30 animate-slide-in my-3 p-4 rounded-2xl bg-gradient-to-b from-slate-900/80 to-slate-950/90 border border-slate-700/60 shadow-2xl backdrop-blur-md">
       
       {/* VS Icon */}
@@ -250,7 +248,10 @@ const VersusBar = ({ user1, user2 }) => {
         <div className="flex items-center gap-2 max-w-[45%]">
           <div className="relative">
              <div className="absolute inset-0 rounded-full bg-blue-500 blur-sm opacity-50"></div>
-             <img src={user1.avatar} className="relative w-11 h-11 rounded-full border-2 border-blue-400 shadow-lg object-cover" />
+             {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
+             <div className="relative w-11 h-11 rounded-full border-2 border-blue-400 shadow-lg overflow-hidden">
+                <img src={user1.avatar} className="w-full h-full object-cover" alt={user1.name} />
+             </div>
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-blue-100 font-bold text-xs truncate">{user1.name}</span>
@@ -263,7 +264,10 @@ const VersusBar = ({ user1, user2 }) => {
           <div className="flex items-center gap-2 flex-row-reverse text-right max-w-[45%]">
             <div className="relative">
               <div className="absolute inset-0 rounded-full bg-rose-500 blur-sm opacity-50"></div>
-              <img src={user2.avatar} className="relative w-11 h-11 rounded-full border-2 border-rose-500 shadow-lg object-cover" />
+              {/* Исправление для аватарок: оборачиваем в div с overflow-hidden */}
+              <div className="relative w-11 h-11 rounded-full border-2 border-rose-500 shadow-lg overflow-hidden">
+                 <img src={user2.avatar} className="w-full h-full object-cover" alt={user2.name} />
+              </div>
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-rose-100 font-bold text-xs truncate">{user2.name}</span>
@@ -293,7 +297,11 @@ const VersusBar = ({ user1, user2 }) => {
 
 export default function App() {
   const [users, setUsers] = useState([]);
-  const usersRef = useRef([]); 
+  // Используем Map для мгновенного обновления данных без ре-рендеров
+  const usersMapRef = useRef(new Map()); 
+  // Флаг для оптимизации (рендерим только если были изменения)
+  const isDirtyRef = useRef(false);
+
   const [gifts, setGifts] = useState([]);
   const giftsRef = useRef([]);
 
@@ -307,16 +315,22 @@ export default function App() {
 
   // --- BATTLE LOGIC ---
   const finishRound = useCallback(() => {
-    const currentLeader = usersRef.current[0];
+    const map = usersMapRef.current;
     
-    // 1. Фиксируем победителя (Короля) только в момент окончания раунда
-    if (currentLeader) {
-      setChampion(currentLeader);
+    // Определяем победителя из актуальных данных Map
+    if (map.size > 0) {
+      const allUsers = Array.from(map.values()).sort((a, b) => b.count - a.count);
+      const currentLeader = allUsers[0];
+      if (currentLeader) {
+        setChampion(currentLeader);
+      }
     }
     
-    // 2. Сбрасываем текущие данные для нового раунда
-    usersRef.current = [];
+    // Сбрасываем данные
+    usersMapRef.current.clear();
     setUsers([]);
+    isDirtyRef.current = false;
+    
     console.log("Round finished. Resetting data.");
   }, []);
 
@@ -336,14 +350,19 @@ export default function App() {
   }, [finishRound]);
 
   // --- DATA HANDLERS ---
+  
+  // ОПТИМИЗИРОВАННЫЙ ОБРАБОТЧИК ЛАЙКОВ
   const handleLike = useCallback((username, avatarUrl, amount) => {
-    const currentUsers = [...usersRef.current];
-    const existingIndex = currentUsers.findIndex(u => u.name === username);
-    if (existingIndex >= 0) {
-      currentUsers[existingIndex].count += amount;
-      currentUsers[existingIndex].lastUpdate = Date.now();
+    const map = usersMapRef.current;
+    
+    if (map.has(username)) {
+      const u = map.get(username);
+      u.count += amount;
+      u.lastUpdate = Date.now();
+      // Обновляем аватар если пришел новый (редко)
+      if (avatarUrl) u.avatar = avatarUrl;
     } else {
-      currentUsers.push({ 
+      map.set(username, { 
         id: username, 
         name: username, 
         avatar: avatarUrl || 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7065997232230301701~c5_100x100.jpeg', 
@@ -351,10 +370,9 @@ export default function App() {
         lastUpdate: Date.now() 
       });
     }
-    currentUsers.sort((a, b) => b.count - a.count);
-    if (currentUsers.length > 50) currentUsers.length = 50;
-    usersRef.current = currentUsers;
-    setUsers([...currentUsers]);
+    
+    // Помечаем, что данные изменились, но НЕ вызываем setUsers здесь
+    isDirtyRef.current = true;
   }, []);
 
   const handleGift = useCallback((sender, avatar, giftName, giftImg, combo) => {
@@ -378,6 +396,30 @@ export default function App() {
     const filtered = giftsRef.current.filter(g => g.id !== id);
     giftsRef.current = filtered;
     setGifts([...filtered]);
+  }, []);
+
+  // --- UI UPDATE LOOP (BATCHING SYSTEM) ---
+  // Это сердце оптимизации: обновляет React состояние только 3 раза в секунду,
+  // даже если лайков приходят тысячи.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Если новых лайков не было, не тратим ресурсы на перерисовку
+      if (!isDirtyRef.current) return;
+
+      const map = usersMapRef.current;
+      const allUsers = Array.from(map.values());
+      
+      // Сортируем
+      allUsers.sort((a, b) => b.count - a.count);
+      
+      // Берем топ 50 для стейта (на экране показываем 5, но запас нужен)
+      const topUsers = allUsers.slice(0, 50);
+      
+      setUsers(topUsers);
+      isDirtyRef.current = false;
+    }, 300); // 300ms = ~3.3 FPS обновления цифр (очень плавно для глаза)
+
+    return () => clearInterval(interval);
   }, []);
 
   // --- WEBSOCKET & ROUTING ---
@@ -436,7 +478,7 @@ export default function App() {
     };
   }, [connectWebSocket]);
 
-  // Данные для рендера
+  // Данные для рендера (берутся из state, который обновляется раз в 300мс)
   const leader = users[0];
   const second = users[1];
   
